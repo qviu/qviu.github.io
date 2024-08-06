@@ -47,16 +47,9 @@
 
         async function getDataBarang() {
             const folderPath = 'data/';
-            const fileNames = ['daihatsu.json']; // Ganti dengan daftar nama file JSON Anda
-            let dataBarang = [];
-
-            for (const fileName of fileNames) {
-                const response = await fetch(folderPath + fileName);
-                const data = await response.json();
-                dataBarang = dataBarang.concat(data);
-            }
-
-            return dataBarang;
+            const response = await fetch(folderPath + 'daihatsu.json');
+            const data = await response.json();
+            return data;
         }
 
         async function cariHargaBarang(keywords) {
