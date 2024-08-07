@@ -1,18 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Pencarian Harga Barang</title>
+    <title>QVIU - Pencarian Harga Barang</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
     <style>
-        /* CSS untuk menyembunyikan field pencarian dan tombol cetak serta kalimat pencarian saat mencetak */
-        @media print {
-            #keyword, h5, input[type="submit"], button, .card-container {
-                display: none;
-            }
-            .print-table {
-                display: table;
-                width: 100%;
-            }
-        }
         .card-container {
             display: flex;
             flex-wrap: wrap;
@@ -28,32 +19,26 @@
         .card h3, .card p {
             margin: 10px 0;
         }
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-        table, th, td {
-            border: 1px solid black;
-        }
-        th, td {
-            padding: 8px;
-            text-align: left;
-        }
-        .print-table {
-            display: none;
-        }
     </style>
 </head>
 <body>
-    <h2>Pencarian Harga Barang</h2>
-    <form id="searchForm">
-        <h5><label for="keyword">Cari berdasarkan kode barang atau nama barang (pisahkan dengan koma untuk pencarian lebih dari satu barang):</label></h5><br>
-        <input type="text" id="keyword" name="keyword"><br>
-        <input type="submit" value="Cari">
-    </form>
-    <br>
-    <button onclick="printPage()">Cetak</button>
-    <div id="results"></div>
+    <section class="section">
+        <div class="container">
+            <h1 class="title">Pencarian Harga Barang</h1>
+            <form id="searchForm" class="mb-4">
+                <div class="field">
+                    <label class="label" for="keyword">Cari berdasarkan kode barang atau nama barang (pisahkan dengan koma untuk pencarian lebih dari satu barang):</label>
+                    <div class="control">
+                        <input class="input" type="text" id="keyword" name="keyword">
+                    </div>
+                </div>
+                <div class="control">
+                    <button class="button is-primary" type="submit">Cari</button>
+                </div>
+            </form>
+            <div id="results"></div>
+        </div>
+    </section>
     <script>
         document.getElementById('searchForm').addEventListener('submit', function(event) {
             event.preventDefault();
@@ -63,13 +48,9 @@
             }
         });
 
-        function printPage() {
-            window.print();
-        }
-
         async function getDataBarang() {
             const folderPath = 'data/';
-            const fileNames = ['daihatsu.json', 'suzuki.json']; // Ganti dengan daftar nama file JSON Anda
+            const fileNames = ['daihatsu.json', 'suzuki.json']; 
             let dataBarang = [];
 
             for (const fileName of fileNames) {
@@ -107,56 +88,53 @@
                 const cardContainer = document.createElement('div');
                 cardContainer.className = 'card-container';
 
-                const printTable = document.createElement('div');
-                printTable.className = 'print-table';
-
-                const table = document.createElement('table');
-                const headerRow = document.createElement('tr');
-                ['Kode Barang', 'Nama Barang', 'Merek Barang', 'Harga Barang', 'Berlaku'].forEach(text => {
-                    const th = document.createElement('th');
-                    th.textContent = text;
-                    headerRow.appendChild(th);
-                });
-                table.appendChild(headerRow);
-
                 hasilPencarian.forEach(barang => {
                     const card = document.createElement('div');
                     card.className = 'card';
 
-                    const kodeBarang = document.createElement('h3');
+                    const cardContent = document.createElement('div');
+                    cardContent.className = 'card-content';
+
+                    const media = document.createElement('div');
+                    media.className = 'media';
+
+                    const mediaContent = document.createElement('div');
+                    mediaContent.className = 'media-content';
+
+                    const kodeBarang = document.createElement('p');
+                    kodeBarang.className = 'title is-4';
                     kodeBarang.textContent = `Kode: ${barang.kode}`;
-                    card.appendChild(kodeBarang);
+                    mediaContent.appendChild(kodeBarang);
 
                     const namaBarang = document.createElement('p');
+                    namaBarang.className = 'subtitle is-6';
                     namaBarang.textContent = `Nama: ${barang.nama}`;
-                    card.appendChild(namaBarang);
+                    mediaContent.appendChild(namaBarang);
+
+                    media.appendChild(mediaContent);
+                    cardContent.appendChild(media);
+
+                    const content = document.createElement('div');
+                    content.className = 'content';
 
                     const merekBarang = document.createElement('p');
                     merekBarang.textContent = `Merek: ${barang.merek}`;
-                    card.appendChild(merekBarang);
+                    content.appendChild(merekBarang);
 
                     const hargaBarang = document.createElement('p');
                     hargaBarang.textContent = `Harga: Rp${new Intl.NumberFormat('id-ID').format(barang.harga)}`;
-                    card.appendChild(hargaBarang);
+                    content.appendChild(hargaBarang);
 
                     const berlaku = document.createElement('p');
                     berlaku.textContent = `Berlaku: ${barang.berlaku}`;
-                    card.appendChild(berlaku);
+                    content.appendChild(berlaku);
 
+                    cardContent.appendChild(content);
+                    card.appendChild(cardContent);
                     cardContainer.appendChild(card);
-
-                    const row = document.createElement('tr');
-                    ['kode', 'nama', 'merek', 'harga', 'berlaku'].forEach(key => {
-                        const td = document.createElement('td');
-                        td.textContent = key === 'harga' ? new Intl.NumberFormat('id-ID').format(barang[key]) : barang[key];
-                        row.appendChild(td);
-                    });
-                    table.appendChild(row);
                 });
 
-                printTable.appendChild(table);
                 resultsDiv.appendChild(cardContainer);
-                resultsDiv.appendChild(printTable);
             } else {
                 resultsDiv.textContent = 'Barang tidak ditemukan.';
             }
