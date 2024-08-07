@@ -21,16 +21,16 @@
         .card h3, .card p {
             margin: 10px 0;
         }
-        @media screen and (max-width: 768px) {
+        @media screen and (max-width: 1024px) {
             .card {
                 flex: 1 1 calc(50% - 20px);
                 max-width: calc(50% - 20px);
             }
         }
-        @media screen and (max-width: 480px) {
+        @media screen and (max-width: 768px) {
             .card {
-                flex: 1 1 100%;
-                max-width: 100%;
+                flex: 1 1 calc(100% - 20px);
+                max-width: calc(100% - 20px);
             }
         }
         .section, .container {
@@ -38,6 +38,9 @@
         }
         .control .textarea {
             resize: none;
+        }
+        .is-centered {
+            justify-content: center;
         }
     </style>
 </head>
@@ -52,7 +55,7 @@
                         <textarea class="textarea" id="keyword" name="keyword" rows="20"></textarea>
                     </div>
                 </div>
-                <div class="control">
+                <div class="control is-centered">
                     <button class="button is-primary" type="submit">Cari</button>
                 </div>
             </form>
