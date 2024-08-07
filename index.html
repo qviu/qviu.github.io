@@ -8,16 +8,36 @@
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
+            justify-content: center;
         }
         .card {
             border: 1px solid #ccc;
             border-radius: 5px;
             padding: 15px;
-            width: calc(33% - 20px);
             box-sizing: border-box;
+            flex: 1 1 calc(33% - 20px);
+            max-width: calc(33% - 20px);
         }
         .card h3, .card p {
             margin: 10px 0;
+        }
+        @media screen and (max-width: 768px) {
+            .card {
+                flex: 1 1 calc(50% - 20px);
+                max-width: calc(50% - 20px);
+            }
+        }
+        @media screen and (max-width: 480px) {
+            .card {
+                flex: 1 1 100%;
+                max-width: 100%;
+            }
+        }
+        .section, .container {
+            text-align: center;
+        }
+        .control .textarea {
+            resize: none;
         }
     </style>
 </head>
@@ -27,9 +47,9 @@
             <h1 class="title">Pencarian Harga Barang</h1>
             <form id="searchForm" class="mb-4">
                 <div class="field">
-                    <label class="label" for="keyword">Cari berdasarkan kode barang atau nama barang (pisahkan dengan koma untuk pencarian lebih dari satu barang):</label>
+                    <label class="label" for="keyword">Cari berdasarkan kode barang atau nama barang (masukkan setiap kata kunci pada baris baru):</label>
                     <div class="control">
-                        <input class="input" type="text" id="keyword" name="keyword">
+                        <textarea class="textarea" id="keyword" name="keyword" rows="20"></textarea>
                     </div>
                 </div>
                 <div class="control">
@@ -44,7 +64,7 @@
             event.preventDefault();
             const keyword = document.getElementById('keyword').value;
             if (keyword) {
-                cariHargaBarang(keyword.split(','));
+                cariHargaBarang(keyword.split('\n'));
             }
         });
 
