@@ -33,7 +33,8 @@
                 max-width: 100%;
             }
             .textarea {
-                height: 10rem;
+                height: 6rem; /* Adjusted height for mobile view */
+                overflow-y: auto; /* Enable scroll if content exceeds */
             }
         }
         .section, .container {
@@ -55,7 +56,7 @@
                 <div class="field">
                     <label class="label" for="keyword">Cari berdasarkan kode barang atau nama barang (masukkan setiap kata kunci pada baris baru):</label>
                     <div class="control">
-                        <textarea class="textarea" id="keyword" name="keyword" rows="20"></textarea>
+                        <textarea class="textarea" id="keyword" name="keyword" rows="3" style="height: 6rem; overflow-y: auto;"></textarea>
                     </div>
                 </div>
                 <div class="control is-centered">
@@ -128,13 +129,13 @@
                     mediaContent.className = 'media-content';
 
                     const kodeBarang = document.createElement('p');
-                    kodeBarang.className = 'title is-4';
-                    kodeBarang.textContent = `Kode: ${barang.kode}`;
+                    kodeBarang.className = 'subtitle is-6';
+                    kodeBarang.textContent = `${barang.kode}`;
                     mediaContent.appendChild(kodeBarang);
 
                     const namaBarang = document.createElement('p');
-                    namaBarang.className = 'subtitle is-6';
-                    namaBarang.textContent = `Nama: ${barang.nama}`;
+                    namaBarang.className = 'title is-4';
+                    namaBarang.textContent = `${barang.nama}`;
                     mediaContent.appendChild(namaBarang);
 
                     media.appendChild(mediaContent);
@@ -144,15 +145,15 @@
                     content.className = 'content';
 
                     const merekBarang = document.createElement('p');
-                    merekBarang.textContent = `Merek: ${barang.merek}`;
+                    merekBarang.textContent = `${barang.merek}`;
                     content.appendChild(merekBarang);
 
                     const hargaBarang = document.createElement('p');
-                    hargaBarang.textContent = `Harga: Rp${new Intl.NumberFormat('id-ID').format(barang.harga)}`;
+                    hargaBarang.textContent = `Rp${new Intl.NumberFormat('id-ID').format(barang.harga)}`;
                     content.appendChild(hargaBarang);
 
                     const berlaku = document.createElement('p');
-                    berlaku.textContent = `Berlaku: ${barang.berlaku}`;
+                    berlaku.textContent = `- ${barang.berlaku} -`;
                     content.appendChild(berlaku);
 
                     cardContent.appendChild(content);
