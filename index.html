@@ -46,6 +46,11 @@
         .is-centered {
             justify-content: center;
         }
+
+        .price {
+        font-weight: bold;
+        color: #003366; /* Dark blue color */
+        }
     </style>
 </head>
 <body>
@@ -149,6 +154,7 @@
                     content.appendChild(merekBarang);
 
                     const hargaBarang = document.createElement('p');
+                    hargaBarang.className = 'price';
                     hargaBarang.textContent = `Rp${new Intl.NumberFormat('id-ID').format(barang.harga)}`;
                     content.appendChild(hargaBarang);
 
