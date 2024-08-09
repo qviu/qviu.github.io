@@ -8,6 +8,9 @@
             #keyword, h5, input[type="submit"], button, h2 {
                 display: none;
             }
+            thead {
+                display: table-header-group;
+            }
         }
         table {
             border-collapse: collapse;
@@ -83,14 +86,17 @@
 
             if (hasilPencarian.length > 0) {
                 const table = document.createElement('table');
+                const thead = document.createElement('thead');
                 const headerRow = document.createElement('tr');
                 ['Nomor Barang', 'Nama Barang', 'Harga Barang'].forEach(text => {
                     const th = document.createElement('th');
                     th.textContent = text;
                     headerRow.appendChild(th);
                 });
-                table.appendChild(headerRow);
+                thead.appendChild(headerRow);
+                table.appendChild(thead);
 
+                const tbody = document.createElement('tbody');
                 hasilPencarian.forEach(barang => {
                     const row = document.createElement('tr');
                     ['kode', 'nama', 'harga'].forEach(key => {
@@ -98,8 +104,9 @@
                         td.textContent = key === 'harga' ? new Intl.NumberFormat('id-ID').format(barang[key]) : barang[key];
                         row.appendChild(td);
                     });
-                    table.appendChild(row);
+                    tbody.appendChild(row);
                 });
+                table.appendChild(tbody);
 
                 resultsDiv.appendChild(table);
             } else {
