@@ -56,9 +56,8 @@
             justify-content: center;
         }
 
-        .price {
+        .part {
             font-weight: bold;
-            font-size: 14px;
             color: #664c28; 
             
         }
@@ -181,7 +180,7 @@ D31250-52040-000
                     mediaContent.appendChild(kodeBarang);
 
                     const namaBarang = document.createElement('p');
-                    namaBarang.className = 'title is-4';
+                    namaBarang.className = 'part';
                     namaBarang.textContent = `${barang.nama}`;
                     mediaContent.appendChild(namaBarang);
 
@@ -196,7 +195,7 @@ D31250-52040-000
                     content.appendChild(merekBarang);
 
                     const hargaBarang = document.createElement('p');
-                    hargaBarang.className = 'price';
+                    hargaBarang.className = 'title is-4';
                     hargaBarang.textContent = `Rp${new Intl.NumberFormat('id-ID').format(barang.harga)}`;
                     content.appendChild(hargaBarang);
 
