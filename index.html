@@ -112,12 +112,14 @@ D31250-52040-000
         </div>
     </section>
     <script>
+        let lastHasilPencarian = [];
         document.getElementById('searchForm').addEventListener('submit', function(event) {
             event.preventDefault();
             const keyword = document.getElementById('keyword').value;
             if (keyword) {
                 cariHargaBarang(keyword.split('\n'));
             }
+            
         });
 
         async function getDataBarang() {
@@ -149,7 +151,8 @@ D31250-52040-000
                 }
             }
 
-            tampilkanHasilPencarian(hasilPencarian);
+         lastHasilPencarian = hasilPencarian;
+         tampilkanHasilPencarian(hasilPencarian);          
         }
 
         function tampilkanHasilPencarian(hasilPencarian) {
@@ -212,6 +215,66 @@ D31250-52040-000
                 resultsDiv.textContent = 'Barang tidak ditemukan.';
             }
         }
+
+        function cetakHasil() {
+    if (!lastHasilPencarian || lastHasilPencarian.length === 0) {
+        alert('Tidak ada data untuk dicetak');
+        return;
+    }
+
+    let tableHTML = `
+        <table border="1" cellspacing="0" cellpadding="5" style="width:100%; border-collapse:collapse;">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Kode</th>
+                    <th>Nama Barang</th>
+                    <th>Merek</th>
+                    <th>Harga</th>
+                    <th>Berlaku</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    lastHasilPencarian.forEach((barang, index) => {
+        tableHTML += `
+            <tr>
+                <td>${index + 1}</td>
+                <td>${barang.kode}</td>
+                <td>${barang.nama}</td>
+                <td>${barang.merek}</td>
+                <td>Rp${new Intl.NumberFormat('id-ID').format(barang.harga)}</td>
+                <td>${barang.berlaku}</td>
+            </tr>
+        `;
+    });
+
+    tableHTML += `</tbody></table>`;
+
+    const win = window.open('', '', 'width=900,height=700');
+    win.document.write(`
+        <html>
+        <head>
+            <title>Cetak Harga Barang</title>
+            <style>
+                body { font-family: Arial; padding:20px; }
+                h2 { text-align:center; }
+                table { font-size: 12px; }
+                th { background:#eee; }
+            </style>
+        </head>
+        <body>
+            <h2>Hasil Pencarian Harga Barang</h2>
+            <p>${new Date().toLocaleString('id-ID')}</p>
+            ${tableHTML}
+        </body>
+        </html>
+    `);
+
+    win.document.close();
+    win.print();
+}
     </script>
 <hr>
 </body>
