@@ -244,7 +244,7 @@ D31250-52040-000
                 <td>${barang.kode}</td>
                 <td>${barang.nama}</td>
                 <td>${barang.merek}</td>
-                <td>Rp${new Intl.NumberFormat('id-ID').format(barang.harga)}</td>
+                <td>${new Intl.NumberFormat('id-ID').format(barang.harga)}</td>
                 <td>${barang.berlaku}</td>
             </tr>
         `;
@@ -265,7 +265,7 @@ D31250-52040-000
             </style>
         </head>
         <body>
-            <h2>Hasil Pencarian Harga Barang</h2>
+            <h2>Daftar Harga Barang</h2>
             <p>${new Date().toLocaleString('id-ID')}</p>
             ${tableHTML}
         </body>
