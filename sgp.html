@@ -124,7 +124,7 @@ D31250-52040-000
 
         async function getDataBarang() {
             const folderPath = 'data/';
-            const fileNames = ['sgp2026.json']; 
+            const fileNames = ['sgp2026l.json']; 
             let dataBarang = [];
 
             for (const fileName of fileNames) {
@@ -192,18 +192,11 @@ D31250-52040-000
                     const content = document.createElement('div');
                     content.className = 'content';
 
-                    const merekBarang = document.createElement('p');
-                    merekBarang.textContent = `${barang.merek}`;
-                    content.appendChild(merekBarang);
-
                     const hargaBarang = document.createElement('p');
                     hargaBarang.className = 'title is-4';
                     hargaBarang.textContent = `Rp${new Intl.NumberFormat('id-ID').format(barang.harga)}`;
                     content.appendChild(hargaBarang);
 
-                    const berlaku = document.createElement('p');
-                    berlaku.textContent = `- ${barang.berlaku} -`;
-                    content.appendChild(berlaku);
 
                     cardContent.appendChild(content);
                     card.appendChild(cardContent);
