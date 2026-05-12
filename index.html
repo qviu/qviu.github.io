@@ -1,21 +1,29 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QVIU - Cek Harga Barang</title>
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+
     <style>
-       
-        .container {
-          background-color: #efe9e6;
-        padding: 10px;
+        body {
+            background-color: #efe9e6;
         }
-          
+
+        .container {
+            background-color: #efe9e6;
+            padding: 10px;
+        }
+
         .card-container {
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
             justify-content: center;
         }
+
         .card {
             background-color: #dedacb;
             border: 2px solid #c0b99c;
@@ -25,210 +33,357 @@
             flex: 1 1 calc(33% - 20px);
             max-width: calc(33% - 20px);
         }
-        .card h3, .card p {
+
+        .card h3,
+        .card p {
             margin: 10px 0;
         }
+
         @media screen and (max-width: 1024px) {
             .card {
                 flex: 1 1 calc(50% - 20px);
                 max-width: calc(50% - 20px);
             }
         }
+
         @media screen and (max-width: 768px) {
             .card {
                 flex: 1 1 100%;
                 max-width: 100%;
             }
+
             .textarea {
-                height: 6rem; /* Adjusted height for mobile view */
-                overflow-y: auto; /* Enable scroll if content exceeds */
+                height: 6rem;
+                overflow-y: auto;
                 background-color: #aca37d;
             }
         }
-        .section, .container {
+
+        .section,
+        .container {
             text-align: center;
             background-color: #efe9e6;
         }
+
         .control .textarea {
             resize: none;
         }
+
         .is-centered {
             justify-content: center;
         }
 
         .part {
             font-weight: bold;
-            color: #664c28; 
-            
+            color: #664c28;
+        }
+
+        .loading {
+            margin-top: 20px;
+            font-weight: bold;
         }
     </style>
 </head>
-<body>
-    <nav class="navbar is-dark" role="navigation" aria-label="main navigation">
-  <div class="navbar-brand">
-    <h1>QVIU</h1>
-    </a>
-  </div>
 
-  <div id="navbarBasicExample" class="navbar-menu">
-    <div class="navbar-start">
-    <div class="navbar-item">
-    HARGA BARANG
-    </div>
-          <div class="navbar-item">
-        <div class="buttons">
-          <a class="button is-danger is-rounded" href="http://buy.id">
-            buy.id
-          </a>
+<body>
+
+<nav class="navbar is-dark" role="navigation">
+    <div class="navbar-brand">
+        <div class="navbar-item">
+            <strong>QVIU</strong>
         </div>
     </div>
-    </div>
 
+    <div class="navbar-menu">
+        <div class="navbar-start">
+            <div class="navbar-item">
+                HARGA BARANG
+            </div>
+
+            <div class="navbar-item">
+                <div class="buttons">
+                    <a class="button is-danger is-rounded" href="https://buy.id">
+                        buy.id
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 </nav>
-    
-       <section class="section">
-        <div class="container">
-         
-            <form id="searchForm" class="mb-4">
-                <div class="field">
-                    <div class="control">
-                        <textarea autofocus class="textarea is-black" id="keyword" name="keyword" rows="8" style="color: #00000; background-color: #dedacb; height: 16rem; overflow-y: auto;" 
-                        placeholder="Cari berdasarkan kode barang atau nama barang (masukkan setiap kata kunci pada baris baru)
+
+<section class="section">
+    <div class="container">
+
+        <form id="searchForm" class="mb-4">
+
+            <div class="field">
+                <div class="control">
+                    <textarea
+                        autofocus
+                        class="textarea is-black"
+                        id="keyword"
+                        name="keyword"
+                        rows="8"
+                        style="color:#000; background-color:#dedacb; height:16rem; overflow-y:auto;"
+                        placeholder="Cari berdasarkan kode barang atau nama barang
+
 Contoh:
 BELT TIMING
 D31250-52040-000
-12761  
-                            "></textarea>
-                    </div>
+12761"></textarea>
                 </div>
-                <div class="control is-centered" style="margin-top:10px;">
-    <button class="button is-dark" type="submit">CEK</button>
-    <button class="button is-light" type="button" onclick="cetakHasil()">CETAK</button>
-</div>            </form>
-            <hr>
-            <div id="results"></div>
-        </div>
-    </section>
-    <script>
-        let lastHasilPencarian = [];
-        document.getElementById('searchForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const keyword = document.getElementById('keyword').value;
-            if (keyword) {
-                cariHargaBarang(keyword.split('\n'));
+            </div>
+
+            <div class="control is-centered" style="margin-top:10px;">
+                <button class="button is-dark" type="submit">
+                    CEK
+                </button>
+
+                <button class="button is-light" type="button" onclick="cetakHasil()">
+                    CETAK
+                </button>
+            </div>
+
+        </form>
+
+        <hr>
+
+        <div id="results"></div>
+
+    </div>
+</section>
+
+<script>
+
+let lastHasilPencarian = [];
+let cachedDataBarang = null;
+
+document.getElementById('searchForm').addEventListener('submit', async function(event) {
+
+    event.preventDefault();
+
+    const keyword = document.getElementById('keyword').value;
+
+    if (!keyword.trim()) {
+        return;
+    }
+
+    await cariHargaBarang(keyword.split('\n'));
+});
+
+async function getDataBarang() {
+
+    if (cachedDataBarang) {
+        return cachedDataBarang;
+    }
+
+    const folderPath = 'data/';
+
+    const fileNames = [
+        'daihatsu2026.json',
+        'sgp2026.json',
+        'mitsubishi2026.json',
+        'mitsubishi.json'
+    ];
+
+    let dataBarang = [];
+
+    for (const fileName of fileNames) {
+
+        try {
+
+            const response = await fetch(folderPath + fileName);
+
+            if (!response.ok) {
+                console.error('Gagal load:', fileName);
+                continue;
             }
-            
-        });
 
-        async function getDataBarang() {
-            const folderPath = 'data/';
-            const fileNames = ['daihatsu2026.json', 'sgp2026.json', 'mitsubishi2026.json', 'mitsubishi.json']; 
-            let dataBarang = [];
+            const data = await response.json();
 
-            for (const fileName of fileNames) {
-                const response = await fetch(folderPath + fileName);
-                const data = await response.json();
+            if (Array.isArray(data)) {
                 dataBarang = dataBarang.concat(data);
             }
 
-            return dataBarang;
+        } catch (err) {
+
+            console.error('Error file:', fileName, err);
+
         }
+    }
 
-        async function cariHargaBarang(keywords) {
-            const dataBarang = await getDataBarang();
-            const hasilPencarian = [];
-            keywords = keywords.map(keyword => keyword.trim().replace(/[^a-zA-Z0-9]/g, '').toLowerCase());
+    cachedDataBarang = dataBarang;
 
-            for (const keyword of keywords) {
-                for (const barang of dataBarang) {
-                    const kodeBarang = (barang.kode || '')
-    .replace(/[^a-zA-Z0-9]/g, '')
-    .toLowerCase();
+    console.log('Total data loaded:', dataBarang.length);
 
-const namaBarang = (barang.nama || '')
-    .replace(/[^a-zA-Z0-9]/g, '')
-    .toLowerCase();
-                    if (kodeBarang.includes(keyword) || namaBarang.includes(keyword)) {
-                        hasilPencarian.push(barang);
-                    }
+    return dataBarang;
+}
+
+function normalizeText(text) {
+
+    return String(text || '')
+        .replace(/[^a-zA-Z0-9]/g, '')
+        .toLowerCase();
+}
+
+async function cariHargaBarang(keywords) {
+
+    const resultsDiv = document.getElementById('results');
+
+    resultsDiv.innerHTML = `
+        <div class="loading">
+            Loading...
+        </div>
+    `;
+
+    const dataBarang = await getDataBarang();
+
+    const hasilPencarian = [];
+
+    keywords = keywords
+        .map(keyword => normalizeText(keyword.trim()))
+        .filter(keyword => keyword !== '');
+
+    for (const keyword of keywords) {
+
+        for (const barang of dataBarang) {
+
+            try {
+
+                const kodeBarang = normalizeText(barang.kode);
+                const namaBarang = normalizeText(barang.nama);
+
+                if (
+                    kodeBarang.includes(keyword) ||
+                    namaBarang.includes(keyword)
+                ) {
+
+                    hasilPencarian.push(barang);
+
                 }
-            }
 
-         lastHasilPencarian = hasilPencarian;
-         tampilkanHasilPencarian(hasilPencarian);          
-        }
+            } catch (err) {
 
-        function tampilkanHasilPencarian(hasilPencarian) {
-            const resultsDiv = document.getElementById('results');
-            resultsDiv.innerHTML = '';
+                console.error('Data rusak:', barang);
 
-            if (hasilPencarian.length > 0) {
-                const cardContainer = document.createElement('div');
-                cardContainer.className = 'card-container';
-
-                hasilPencarian.forEach(barang => {
-                    const card = document.createElement('div');
-                    card.className = 'card';
-
-                    const cardContent = document.createElement('div');
-                    cardContent.className = 'card-content';
-
-                    const media = document.createElement('div');
-                    media.className = 'media';
-
-                    const mediaContent = document.createElement('div');
-                    mediaContent.className = 'media-content';
-
-                    const kodeBarang = document.createElement('p');
-                    kodeBarang.className = 'subtitle is-6';
-                    kodeBarang.textContent = `${barang.kode}`;
-                    mediaContent.appendChild(kodeBarang);
-
-                    const namaBarang = document.createElement('p');
-                    namaBarang.className = 'part';
-                    namaBarang.textContent = `${barang.nama}`;
-                    mediaContent.appendChild(namaBarang);
-
-                    media.appendChild(mediaContent);
-                    cardContent.appendChild(media);
-
-                    const content = document.createElement('div');
-                    content.className = 'content';
-
-                    const merekBarang = document.createElement('p');
-                    merekBarang.textContent = `${barang.merek}`;
-                    content.appendChild(merekBarang);
-
-                    const hargaBarang = document.createElement('p');
-                    hargaBarang.className = 'title is-4';
-                    hargaBarang.textContent = `Rp${new Intl.NumberFormat('id-ID').format(barang.harga)}`;
-                    content.appendChild(hargaBarang);
-
-                    const berlaku = document.createElement('p');
-                    berlaku.textContent = `- ${barang.berlaku} -`;
-                    content.appendChild(berlaku);
-
-                    cardContent.appendChild(content);
-                    card.appendChild(cardContent);
-                    cardContainer.appendChild(card);
-                });
-
-                resultsDiv.appendChild(cardContainer);
-            } else {
-                resultsDiv.textContent = 'Barang tidak ditemukan.';
             }
         }
+    }
 
-        function cetakHasil() {
-    if (!lastHasilPencarian || lastHasilPencarian.length === 0) {
+    // Hapus duplikat
+    const uniqueResults = [];
+    const seen = new Set();
+
+    for (const item of hasilPencarian) {
+
+        const key = `${item.kode}-${item.nama}`;
+
+        if (!seen.has(key)) {
+            seen.add(key);
+            uniqueResults.push(item);
+        }
+    }
+
+    lastHasilPencarian = uniqueResults;
+
+    tampilkanHasilPencarian(uniqueResults);
+}
+
+function tampilkanHasilPencarian(hasilPencarian) {
+
+    const resultsDiv = document.getElementById('results');
+
+    resultsDiv.innerHTML = '';
+
+    if (!hasilPencarian.length) {
+
+        resultsDiv.textContent = 'Barang tidak ditemukan.';
+        return;
+    }
+
+    const cardContainer = document.createElement('div');
+
+    cardContainer.className = 'card-container';
+
+    hasilPencarian.forEach(barang => {
+
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        const cardContent = document.createElement('div');
+        cardContent.className = 'card-content';
+
+        const media = document.createElement('div');
+        media.className = 'media';
+
+        const mediaContent = document.createElement('div');
+        mediaContent.className = 'media-content';
+
+        const kodeBarang = document.createElement('p');
+        kodeBarang.className = 'subtitle is-6';
+        kodeBarang.textContent = barang.kode || '-';
+
+        mediaContent.appendChild(kodeBarang);
+
+        const namaBarang = document.createElement('p');
+        namaBarang.className = 'part';
+        namaBarang.textContent = barang.nama || '-';
+
+        mediaContent.appendChild(namaBarang);
+
+        media.appendChild(mediaContent);
+
+        cardContent.appendChild(media);
+
+        const content = document.createElement('div');
+        content.className = 'content';
+
+        const merekBarang = document.createElement('p');
+        merekBarang.textContent = barang.merek || '-';
+
+        content.appendChild(merekBarang);
+
+        const hargaBarang = document.createElement('p');
+        hargaBarang.className = 'title is-4';
+
+        hargaBarang.textContent =
+            'Rp' +
+            new Intl.NumberFormat('id-ID').format(
+                Number(barang.harga) || 0
+            );
+
+        content.appendChild(hargaBarang);
+
+        const berlaku = document.createElement('p');
+
+        berlaku.textContent = barang.berlaku
+            ? `- ${barang.berlaku} -`
+            : '';
+
+        content.appendChild(berlaku);
+
+        cardContent.appendChild(content);
+
+        card.appendChild(cardContent);
+
+        cardContainer.appendChild(card);
+    });
+
+    resultsDiv.appendChild(cardContainer);
+}
+
+function cetakHasil() {
+
+    if (!lastHasilPencarian.length) {
+
         alert('Tidak ada data untuk dicetak');
         return;
     }
 
     let tableHTML = `
-        <table border="1" cellspacing="0" cellpadding="5" style="width:100%; border-collapse:collapse;">
+        <table border="1" cellspacing="0" cellpadding="5"
+        style="width:100%; border-collapse:collapse;">
+
             <thead>
                 <tr>
                     <th>No</th>
@@ -239,47 +394,78 @@ const namaBarang = (barang.nama || '')
                     <th>Berlaku</th>
                 </tr>
             </thead>
+
             <tbody>
     `;
 
     lastHasilPencarian.forEach((barang, index) => {
+
         tableHTML += `
             <tr>
                 <td>${index + 1}</td>
-                <td>${barang.kode}</td>
-                <td>${barang.nama}</td>
-                <td>${barang.merek}</td>
-                <td>${new Intl.NumberFormat('id-ID').format(barang.harga)}</td>
-                <td>${barang.berlaku}</td>
+                <td>${barang.kode || '-'}</td>
+                <td>${barang.nama || '-'}</td>
+                <td>${barang.merek || '-'}</td>
+                <td>
+                    ${new Intl.NumberFormat('id-ID').format(
+                        Number(barang.harga) || 0
+                    )}
+                </td>
+                <td>${barang.berlaku || '-'}</td>
             </tr>
         `;
     });
 
-    tableHTML += `</tbody></table>`;
+    tableHTML += `
+            </tbody>
+        </table>
+    `;
 
     const win = window.open('', '', 'width=900,height=700');
+
     win.document.write(`
         <html>
         <head>
             <title>Cetak Harga Barang</title>
+
             <style>
-                body { font-family: Arial; padding:20px; }
-                h2 { text-align:center; }
-                table { font-size: 12px; }
-                th { background:#eee; }
+                body {
+                    font-family: Arial;
+                    padding: 20px;
+                }
+
+                h2 {
+                    text-align: center;
+                }
+
+                table {
+                    font-size: 12px;
+                }
+
+                th {
+                    background: #eee;
+                }
             </style>
         </head>
+
         <body>
+
             <h2>Daftar Harga Barang</h2>
-              ${tableHTML}
+
+            ${tableHTML}
+
         </body>
         </html>
     `);
 
     win.document.close();
+
     win.print();
 }
-    </script>
+
+</script>
+
 <hr>
+
 </body>
 </html>
