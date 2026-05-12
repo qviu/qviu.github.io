@@ -143,8 +143,13 @@ D31250-52040-000
 
             for (const keyword of keywords) {
                 for (const barang of dataBarang) {
-                    const kodeBarang = barang.kode.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
-                    const namaBarang = barang.nama.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+                    const kodeBarang = (barang.kode || '')
+    .replace(/[^a-zA-Z0-9]/g, '')
+    .toLowerCase();
+
+const namaBarang = (barang.nama || '')
+    .replace(/[^a-zA-Z0-9]/g, '')
+    .toLowerCase();
                     if (kodeBarang.includes(keyword) || namaBarang.includes(keyword)) {
                         hasilPencarian.push(barang);
                     }
