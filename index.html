@@ -162,7 +162,7 @@ async function cariHargaBarang(keywords) {
         <div class="flex flex-col items-center justify-center p-8 text-blue-600 font-medium">
             <svg class="animate-spin h-8 w-8 mb-3 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" diagnostic="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
             Mencari data barang...
         </div>`;
@@ -184,9 +184,14 @@ async function cariHargaBarang(keywords) {
 
     const uniqueResults = [];
     const seen = new Set();
+    
+    // LOGIKA PERBAIKAN: Gunakan merek sebagai pembeda agar data beda merek tidak tertimpa
     for (const item of hasilPencarian) {
-        const key = `${normalizeText(item.kode)}-${normalizeText(item.nama)}`;
-        if (!seen.has(key)) { seen.add(key); uniqueResults.push(item); }
+        const key = `${normalizeText(item.kode)}-${normalizeText(item.nama)}-${item.merek}`;
+        if (!seen.has(key)) { 
+            seen.add(key); 
+            uniqueResults.push(item); 
+        }
     }
 
     lastHasilPencarian = uniqueResults;
@@ -235,45 +240,88 @@ function tampilkanHasilPencarian(hasilPencarian) {
 function cetakHasil() {
     if (!lastHasilPencarian.length) { alert('Tidak ada data untuk dicetak'); return; }
 
-    let tableHTML = `
-        <table border="1" cellspacing="0" cellpadding="8" style="width:100%; border-collapse:collapse; font-family: sans-serif;">
-            <thead>
-                <tr style="background-color: #2563eb; color: white;">
-                    <th>No</th><th>Kode Barang</th><th>Nama Barang</th><th>Merek</th><th>Harga</th><th>Mulai Berlaku</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
-
-    lastHasilPencarian.forEach((barang, index) => {
-        tableHTML += `
-            <tr style="background-color: ${index % 2 === 0 ? '#ffffff' : '#f8fafc'};">
-                <td style="text-align: center;">${index + 1}</td>
-                <td style="font-weight: bold;">${barang.kode}</td>
-                <td>${barang.nama}</td>
-                <td><span style="background: #eff6ff; color: #2563eb; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold;">${barang.merek}</span></td>
-                <td style="text-align: right; font-weight: bold;">${new Intl.NumberFormat('id-ID').format(barang.harga)}</td>
-                <td style="text-align: center; color: #64748b;">${barang.berlaku}</td>
-            </tr>
-        `;
+    // LOGIKA PERBAIKAN: Mengurutkan berdasar Merek lalu Kode agar rapi di kertas
+    const dataDisortir = [...lastHasilPencarian].sort((a, b) => {
+        if (a.merek < b.merek) return -1;
+        if (a.merek > b.merek) return 1;
+        if (a.kode < b.kode) return -1;
+        if (a.kode > b.kode) return 1;
+        return 0;
     });
 
-    tableHTML += `</tbody></table>`;
+    // LOGIKA PERBAIKAN: Kunci pengelompokan menggunakan "Merek + Tanggal Berlaku" 
+    // agar merek yang sama tapi beda tanggal tidak kecampur dalam 1 tabel
+    const kelompokData = {};
+    dataDisortir.forEach(barang => {
+        const keyGrup = barang.merek + " | " + barang.berlaku;
+        
+        if (!kelompokData[keyGrup]) {
+            kelompokData[keyGrup] = {
+                merek: barang.merek,
+                berlaku: barang.berlaku,
+                list: []
+            };
+        }
+        kelompokData[keyGrup].list.push(barang);
+    });
+
+    let cetakHTML = '';
+
+    for (const key in kelompokData) {
+        const dataGrup = kelompokData[key];
+        
+        cetakHTML += `
+            <div class="brand-section">
+                <h2 style="font-size: 18px; font-weight: bold; margin: 30px 0 2px 0; text-transform: uppercase;">Daftar Harga ${dataGrup.merek}</h2>
+                <div style="font-size: 13px; font-style: italic; margin-bottom: 12px; color: #333;">Berlaku: ${dataGrup.berlaku}</div>
+                
+                <table border="1" cellspacing="0" cellpadding="8" style="width:100%; border-collapse:collapse; font-family: sans-serif; margin-bottom: 35px;">
+                    <thead>
+                        <tr style="background-color: #000000; color: #ffffff;">
+                            <th style="width: 5%; text-align: center; border: 1px solid #000;">No</th>
+                            <th style="width: 25%; text-align: left; border: 1px solid #000;">Kode Barang</th>
+                            <th style="width: 50%; text-align: left; border: 1px solid #000;">Nama Barang</th>
+                            <th style="width: 20%; text-align: right; border: 1px solid #000;">Harga</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+
+        dataGrup.list.forEach((barang, index) => {
+            cetakHTML += `
+                <tr>
+                    <td style="text-align: center; border: 1px solid #000;">${index + 1}</td>
+                    <td style="font-weight: bold; border: 1px solid #000;">${barang.kode}</td>
+                    <td style="border: 1px solid #000;">${barang.nama}</td>
+                    <td style="text-align: right; font-weight: bold; border: 1px solid #000;">${new Intl.NumberFormat('id-ID').format(barang.harga)}</td>
+                </tr>
+            `;
+        });
+
+        cetakHTML += `
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
 
     const win = window.open('', '', 'width=900,height=700');
     win.document.write(`
         <html>
         <head>
-            <title>TOKO.INFO - Cetak Daftar</title>
+            <title>TOKO.INFO - Cetak Hitam Putih</title>
             <style>
-                body { font-family: Arial, sans-serif; padding: 30px; color: #1e293b; }
-                h2 { text-align: center; color: #2563eb; margin-bottom: 25px; }
-                table { font-size: 13px; width: 100%; }
-                th, td { border: 1px solid #e2e8f0; }
-                th { padding: 12px; }
+                body { font-family: Arial, sans-serif; padding: 20px; color: #000000; background-color: #ffffff; }
+                table { font-size: 13px; }
+                th, td { padding: 8px; }
+                @media print {
+                    .brand-section { page-break-inside: avoid; }
+                }
             </style>
         </head>
-        <body><h2>Daftar Harga Suku Cadang</h2>${tableHTML}</body>
+        <body>
+            ${cetakHTML}
+        </body>
         </html>
     `);
     win.document.close();
